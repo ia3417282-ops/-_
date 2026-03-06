@@ -2,7 +2,10 @@ import React, { useMemo } from 'react';
 import { db } from '../db';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
-import { AlertCircle, TrendingUp, TrendingDown, DollarSign, Activity, Wallet, ShieldAlert, Clock } from 'lucide-react';
+// تمت إضافة FileText و Download هنا لأيقونات الأزرار
+import { AlertCircle, TrendingUp, TrendingDown, DollarSign, Activity, Wallet, ShieldAlert, Clock, FileText, Download } from 'lucide-react';
+// إضافة استدعاء دوال التصدير والطباعة
+import { exportToExcel, printReport } from '../utils/exports';
 
 export default function Dashboard() {
   const sales = useLiveQuery(() => db.sales.toArray()) || [];
@@ -16,6 +19,18 @@ export default function Dashboard() {
   // For now, let's estimate expenses as 60% of sales if no real expenses exist, or calculate from transactions
   const totalExpenses = useMemo(() => totalSales * 0.6, [totalSales]); 
   const netProfit = totalSales - totalExpenses;
+
+  // إضافة دالة تجهيز بيانات الإكسيل
+  const handleExcelExport = () => {
+    const reportData = [
+      { "البيان": "إجمالي المبيعات", "القيمة": totalSales.toLocaleString() },
+      { "البيان": "إجمالي المصروفات", "القيمة": totalExpenses.toLocaleString() },
+      { "البيان": "صافي الأرباح", "القيمة": netProfit.toLocaleString() },
+      { "البيان": "النقد المتوفر", "القيمة": displayLiquidity.toLocaleString() },
+      { "تاريخ التقرير": new Date().toLocaleDateString('ar-EG'), "القيمة": "" }
+    ];
+    exportToExcel(reportData, "تقرير_لوحة_التحكم");
+  };
 
   // Smart Alerts
   const lowStockItems = useMemo(() => inventory.filter(i => Number(i.quantity) <= Number(i.minStock || 5)), [inventory]);
@@ -60,6 +75,30 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      {/* تمت إضافة شريط الأزرار هنا أعلى الصفحة */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-4 print:hidden">
+        <div>
+          <h2 className="text-xl font-bold text-gray-800">ملخص الأداء</h2>
+          <p className="text-sm text-gray-500">مرحباً بك، يمكنك طباعة التقرير أو تصديره</p>
+        </div>
+        <div className="flex gap-2">
+          <button 
+            onClick={printReport}
+            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors shadow-sm font-medium"
+          >
+            <FileText size={18} />
+            PDF / طباعة
+          </button>
+          <button 
+            onClick={handleExcelExport}
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors shadow-sm font-medium"
+          >
+            <Download size={18} />
+            Excel
+          </button>
+        </div>
+      </div>
+
       <div className="bg-indigo-50 p-4 rounded-lg border-r-4 border-indigo-600 mb-4">
         <h3 className="text-lg font-bold text-indigo-900">لوحة التحكم (Dashboard)</h3>
         <p className="text-sm text-indigo-700">نظرة عامة على أداء العمل، تتبع المبيعات والأرباح، مراقبة السيولة النقدية، وتنبيهات النواقص في المخزون.</p>

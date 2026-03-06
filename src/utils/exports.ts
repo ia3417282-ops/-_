@@ -1,36 +1,50 @@
-import { utils, writeFile } from 'xlsx';
-import { jsPDF } from 'jspdf';
-import { Document, Packer, Paragraph, TextRun } from 'docx';
+import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
-// 1. تصدير Excel
+/**
+ * 1. دالة تصدير البيانات إلى Excel (تدعم العربية 100%)
+ */
 export const exportToExcel = (data: any[], fileName: string) => {
-  const ws = utils.json_to_sheet(data);
-  const wb = utils.book_new();
-  utils.book_append_sheet(wb, ws, "البيانات");
-  writeFile(wb, `${fileName}.xlsx`);
-};
+  if (!data || data.length === 0) {
+    alert("لا توجد بيانات لتصديرها!");
+    return;
+  }
 
-// 2. تصدير PDF
-export const exportToPDF = (text: string, fileName: string) => {
-  const doc = new jsPDF();
-  doc.setFont("helvetica"); // يُنصح بإضافة خط عربي مخصص هنا
-  doc.text(text, 10, 10);
-  doc.save(`${fileName}.pdf`);
-};
+  // إنشاء ورقة العمل
+  const worksheet = XLSX.utils.json_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "البيانات");
 
-// 3. تصدير Word
-export const exportToWord = async (text: string, fileName: string) => {
-  const doc = new Document({
-    sections: [{
-      properties: {},
-      children: [
-        new Paragraph({
-          children: [new TextRun(text)],
-        }),
-      ],
-    }],
+  // توليد البيانات كـ ArrayBuffer لضمان توافق المتصفحات والموبايل
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  
+  // استخدام Blob مع ترميز UTF-8 لمنع الرموز الغريبة
+  const finalData = new Blob([excelBuffer], { 
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' 
   });
-  const blob = await Packer.toBlob(doc);
-  saveAs(blob, `${fileName}.docx`);
+
+  saveAs(finalData, `${fileName}_${new Date().toISOString().split('T')[0]}.xlsx`);
+};
+
+/**
+ * 2. دالة تصدير البيانات بصيغة نصية (عربية سليمة بفضل الـ BOM)
+ */
+export const exportToText = (data: any, fileName: string) => {
+  const jsonString = JSON.stringify(data, null, 2);
+  
+  // إضافة \ufeff (Byte Order Mark) لإجبار الموبايل على قراءة الملف كـ UTF-8 (عربي)
+  const blob = new Blob(["\ufeff" + jsonString], { 
+    type: 'text/plain;charset=utf-8' 
+  });
+  
+  saveAs(blob, `${fileName}.txt`);
+};
+
+/**
+ * 3. دالة الطباعة (تفتح نافذة الطباعة وتدعم العربية تلقائياً)
+ */
+export const printReport = () => {
+  // نقوم بطلب الطباعة مباشرة من المتصفح
+  // المتصفح سيقوم بتحويل الصفحة الحالية إلى PDF أو إرسالها للطابعة
+  window.print();
 };

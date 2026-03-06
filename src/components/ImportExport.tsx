@@ -16,6 +16,9 @@ export default function ImportExport() {
   const [value, setValue] = useState('0'); // قيمة الشحنة المالية
   const [shippingMethod, setShippingMethod] = useState('sea'); // بحري، جوي، بري
   const [status, setStatus] = useState('pending'); // قيد الشحن، تم الاستلام، في الجمارك
+  
+  // --- إضافة جديدة: تصنيف الأصناف (أكل، شرب، لبس، الخ) ---
+  const [itemCategory, setItemCategory] = useState('general');
 
   const addRecord = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +34,7 @@ export default function ImportExport() {
       value: Number(value),
       shippingMethod,
       status,
+      itemCategory, // حفظ التصنيف الجديد في قاعدة البيانات
     });
 
     // إعادة ضبط الحقول
@@ -38,6 +42,7 @@ export default function ImportExport() {
     setDetails('');
     setShipmentNo('');
     setValue('0');
+    setItemCategory('general');
   };
 
   const deleteRecord = async (id: number) => {
@@ -46,15 +51,42 @@ export default function ImportExport() {
     }
   };
 
+  // تحديث دالة نوع الجهة لتشمل جميع الخيارات الجديدة
   const getEntityTypeName = (type: string) => {
     const types: Record<string, string> = {
       office: 'مكتب',
       company: 'شركة',
       distributor: 'موزع',
       customer: 'عميل',
-      supplier: 'مورد'
+      supplier: 'مورد',
+      merchant: 'تاجر',
+      restaurant: 'مطعم',
+      brand: 'ماركة / براند',
+      factory: 'مصنع',
+      freelancer: 'مستقل / فرد',
+      other: 'أخرى'
     };
     return types[type] || type;
+  };
+
+  // دالة جديدة لجلب اسم تصنيف الصنف
+  const getItemCategoryName = (category: string) => {
+    const categories: Record<string, string> = {
+      general: 'عام / متنوع',
+      food: 'مأكولات ومواد غذائية',
+      beverage: 'مشروبات',
+      clothing: 'ملابس ومنسوجات',
+      electronics: 'إلكترونيات وأجهزة',
+      vehicles: 'سيارات ومركبات',
+      spare_parts: 'قطع غيار',
+      medical: 'أدوية ومستلزمات طبية',
+      cosmetics: 'عطور ومستحضرات تجميل',
+      furniture: 'أثاث ومفروشات',
+      construction: 'مواد بناء',
+      raw_materials: 'مواد خام',
+      other: 'أخرى'
+    };
+    return categories[category] || category;
   };
 
   const getStatusBadge = (status: string) => {
@@ -83,6 +115,24 @@ export default function ImportExport() {
             </select>
           </div>
           
+          {/* --- القائمة المحدثة لنوع الجهة --- */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">نوع الجهة</label>
+            <select value={entityType} onChange={(e) => setEntityType(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500">
+              <option value="company">🏢 شركة</option>
+              <option value="supplier">📦 مورد</option>
+              <option value="customer">👥 عميل</option>
+              <option value="distributor">🚚 موزع</option>
+              <option value="merchant">🏪 تاجر</option>
+              <option value="restaurant">🍽️ مطعم</option>
+              <option value="brand">✨ ماركة / براند</option>
+              <option value="factory">🏭 مصنع</option>
+              <option value="office">🏢 مكتب</option>
+              <option value="freelancer">👤 فرد / مستقل</option>
+              <option value="other">⚙️ أخرى</option>
+            </select>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">اسم الجهة</label>
             <input type="text" value={entityName} onChange={(e) => setEntityName(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="اسم الشركة أو المورد" required />
@@ -91,6 +141,26 @@ export default function ImportExport() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">رقم الشحنة / البوليصة</label>
             <input type="text" value={shipmentNo} onChange={(e) => setShipmentNo(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Bill of Lading" />
+          </div>
+
+          {/* --- القائمة الجديدة لتصنيف الأصناف --- */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">تصنيف الأصناف</label>
+            <select value={itemCategory} onChange={(e) => setItemCategory(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500">
+              <option value="general">📦 عام / متنوع</option>
+              <option value="food">🍎 مأكولات ومواد غذائية</option>
+              <option value="beverage">🥤 مشروبات</option>
+              <option value="clothing">👕 ملابس ومنسوجات</option>
+              <option value="electronics">💻 إلكترونيات وأجهزة</option>
+              <option value="vehicles">🚗 سيارات ومركبات</option>
+              <option value="spare_parts">⚙️ قطع غيار</option>
+              <option value="medical">💊 أدوية ومستلزمات طبية</option>
+              <option value="cosmetics">💄 عطور ومستحضرات تجميل</option>
+              <option value="furniture">🛋️ أثاث ومفروشات</option>
+              <option value="construction">🧱 مواد بناء</option>
+              <option value="raw_materials">🛢️ مواد خام</option>
+              <option value="other">📌 أخرى</option>
+            </select>
           </div>
 
           <div>
@@ -117,9 +187,9 @@ export default function ImportExport() {
             </select>
           </div>
 
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">تفاصيل المحتوى</label>
-            <input type="text" value={details} onChange={(e) => setDetails(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="ماذا يوجد داخل الشحنة؟" required />
+          <div className="md:col-span-4">
+             <label className="block text-sm font-medium text-gray-700 mb-1">تفاصيل المحتوى</label>
+             <input type="text" value={details} onChange={(e) => setDetails(e.target.value)} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="ماذا يوجد داخل الشحنة بالتفصيل؟" required />
           </div>
         </div>
 
@@ -139,6 +209,8 @@ export default function ImportExport() {
               <th className="py-3 px-4 border-b text-right text-sm font-bold text-indigo-900">النوع</th>
               <th className="py-3 px-4 border-b text-right text-sm font-bold text-indigo-900">الجهة</th>
               <th className="py-3 px-4 border-b text-right text-sm font-bold text-indigo-900">رقم الشحنة</th>
+              {/* إضافة عمود التصنيف للجدول */}
+              <th className="py-3 px-4 border-b text-right text-sm font-bold text-indigo-900">التصنيف</th>
               <th className="py-3 px-4 border-b text-right text-sm font-bold text-indigo-900">المحتوى</th>
               <th className="py-3 px-4 border-b text-right text-sm font-bold text-indigo-900">الحالة</th>
               <th className="py-3 px-4 border-b text-right text-sm font-bold text-indigo-900">إجراءات</th>
@@ -160,6 +232,10 @@ export default function ImportExport() {
                   <div className="text-[10px] text-gray-400">{getEntityTypeName(record.entityType)}</div>
                 </td>
                 <td className="py-3 px-4 text-sm font-mono text-gray-600">{record.shipmentNo || '---'}</td>
+                {/* عرض اسم التصنيف في الجدول */}
+                <td className="py-3 px-4 text-xs font-semibold text-indigo-600">
+                  {getItemCategoryName(record.itemCategory || 'general')}
+                </td>
                 <td className="py-3 px-4 text-sm text-gray-700 max-w-xs truncate">{record.details}</td>
                 <td className="py-3 px-4">{getStatusBadge(record.status)}</td>
                 <td className="py-3 px-4 text-sm">
@@ -177,7 +253,7 @@ export default function ImportExport() {
             ))}
             {records?.length === 0 && (
               <tr>
-                <td colSpan={7} className="py-12 text-center text-gray-400 italic">
+                <td colSpan={8} className="py-12 text-center text-gray-400 italic">
                   لا توجد عمليات استيراد أو تصدير مسجلة حالياً
                 </td>
               </tr>
