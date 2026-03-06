@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { exportToExcel, exportToPDF, exportToWord } from './utils/exports';
-// تم إضافة initializeData هنا
 import { db, initializeData } from './db';
 import { useLiveQuery } from 'dexie-react-hooks';
 import Dashboard from './components/Dashboard';
@@ -32,9 +31,8 @@ export default function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   useEffect(() => {
-    // --- تمت إضافة دالة التهيئة هنا ---
+    // --- دالة التهيئة الذاتية لقاعدة البيانات ---
     initializeData().catch(err => console.error("Initialization failed:", err));
-    // ----------------------------------
 
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
@@ -189,7 +187,6 @@ export default function App() {
       {/* المحتوى الرئيسي */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden w-full relative">
         <header className="bg-white shadow-sm border-b border-gray-200 px-4 md:px-8 py-4 flex justify-between items-center z-10">
-          {/* ... (بقية الـ Header) ... */}
           <div className="flex items-center gap-4">
             <button className="md:hidden text-gray-600 hover:text-indigo-600" onClick={() => setIsSidebarOpen(true)}>
               <Menu size={28} />
@@ -212,6 +209,68 @@ export default function App() {
               {activeTab === 'logs' && 'سجلات المعاملات'}
               {activeTab === 'settings' && 'الإعدادات والمزامنة'}
             </h2>
+            
+            {/* حالة الشبكة للكمبيوتر */}
+            <div className={`hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${isOnline ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+              {isOnline ? <Wifi size={14} /> : <WifiOff size={14} />}
+              <span>{isOnline ? 'متصل بالإنترنت' : 'شبكة محلية (Offline)'}</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 relative">
+            {/* حالة الشبكة للموبايل */}
+            <div className={`md:hidden flex items-center justify-center w-8 h-8 rounded-full ${isOnline ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`} title={isOnline ? 'متصل بالإنترنت' : 'شبكة محلية (Offline)'}>
+              {isOnline ? <Wifi size={16} /> : <WifiOff size={16} />}
+            </div>
+
+            {/* الإشعارات */}
+            <button 
+              className="text-gray-500 hover:text-indigo-600 p-2 relative" 
+              title="التنبيهات"
+              onClick={() => setShowNotifications(!showNotifications)}
+            >
+              <Bell size={20} />
+              {lowStockItems.length > 0 && (
+                <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full font-bold">
+                  {lowStockItems.length}
+                </span>
+              )}
+            </button>
+            
+            {/* قائمة الإشعارات */}
+            {showNotifications && (
+              <div className="absolute top-full mt-2 left-0 md:right-0 md:left-auto w-72 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden">
+                <div className="p-3 bg-gray-50 border-b border-gray-200 font-bold text-sm">التنبيهات</div>
+                <div className="max-h-64 overflow-y-auto p-2">
+                  {lowStockItems.length > 0 ? (
+                    lowStockItems.map(item => (
+                      <div key={item.id} className="p-2 border-b border-gray-100 last:border-0 text-sm">
+                        <span className="text-red-600 font-bold">تنبيه مخزون: </span>
+                        الصنف "{item.name}" وصل للحد الأدنى ({item.quantity} {item.unit}).
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-gray-500 text-sm">لا توجد تنبيهات حالياً</div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="h-6 w-px bg-gray-300 mx-1"></div>
+            
+            {/* أزرار التصدير والمشاركة */}
+            <button className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 md:px-4 rounded text-xs md:text-sm font-medium transition-colors flex items-center gap-1" onClick={handleShare}>
+              <Share2 size={16} /> <span className="hidden md:inline">مشاركة</span>
+            </button>
+            <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 md:px-4 rounded text-xs md:text-sm font-medium transition-colors" onClick={handleExportExcel}>
+              Excel
+            </button>
+            <button className="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 md:px-4 rounded text-xs md:text-sm font-medium transition-colors" onClick={handleExportPDF}>
+              PDF
+            </button>
+            <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 md:px-4 rounded text-xs md:text-sm font-medium transition-colors" onClick={handleExportWord}>
+              Word
+            </button>
           </div>
         </header>
 
