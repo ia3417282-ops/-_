@@ -87,3 +87,22 @@ export class AamaliDatabase extends Dexie {
 
 export const db = new AamaliDatabase();
 
+
+export async function initializeData() {
+  const defaultData = [
+    { section: 'المخزون', types: ['أجهزة', 'أثاث'], items: ['لابتوب', 'طاولة مكتب'] },
+    { section: 'المبيعات', types: ['نقدية', 'آجلة'], items: ['فاتورة بيع', 'مرتجع'] },
+    { section: 'المحاسبة', types: ['مصروفات', 'إيرادات'], items: ['رواتب', 'كهرباء'] }
+  ];
+
+  for (const s of defaultData) {
+    for (const t of s.types) {
+      for (const i of s.items) {
+        const exists = await db.items.where({name: i, section: s.section}).first();
+        if (!exists) {
+          await db.items.add({ name: i, section: s.section, type: t });
+        }
+      }
+    }
+  }
+}
