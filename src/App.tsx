@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { exportToExcel, exportToPDF, exportToWord } from './utils/exports';
+import { exportToExcel, exportToText, printReport } from './utils/exports';
 import { db, initializeData } from './db';
 import { useLiveQuery } from 'dexie-react-hooks';
 import Dashboard from './components/Dashboard';
@@ -73,16 +73,14 @@ export default function App() {
     exportToExcel(data, `بيانات_${activeTab}`);
   };
 
-  const handleExportPDF = async () => {
-    const data = await getExportData();
-    const text = JSON.stringify(data, null, 2);
-    exportToPDF(`تقرير نظام أعمالي\n\nالقسم: ${activeTab}\n\n${text}`, `تقرير_${activeTab}`);
+  const handlePrint = () => {
+    // استدعاء دالة الطباعة (والتي تتيح أيضاً الحفظ كـ PDF من المتصفح)
+    printReport();
   };
 
-  const handleExportWord = async () => {
+  const handleExportTXT = async () => {
     const data = await getExportData();
-    const text = JSON.stringify(data, null, 2);
-    exportToWord(`مستند نظام أعمالي\nالقسم: ${activeTab}\n\n${text}`, `مستند_${activeTab}`);
+    exportToText(data, `مستند_${activeTab}`);
   };
 
   const handleShare = async () => {
@@ -265,11 +263,11 @@ export default function App() {
             <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 md:px-4 rounded text-xs md:text-sm font-medium transition-colors" onClick={handleExportExcel}>
               Excel
             </button>
-            <button className="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 md:px-4 rounded text-xs md:text-sm font-medium transition-colors" onClick={handleExportPDF}>
-              PDF
+            <button className="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 md:px-4 rounded text-xs md:text-sm font-medium transition-colors" onClick={handlePrint}>
+              طباعة / PDF
             </button>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 md:px-4 rounded text-xs md:text-sm font-medium transition-colors" onClick={handleExportWord}>
-              Word
+            <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 md:px-4 rounded text-xs md:text-sm font-medium transition-colors" onClick={handleExportTXT}>
+              نص (TXT)
             </button>
           </div>
         </header>
