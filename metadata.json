@@ -1,0 +1,5 @@
+{
+  "name": "نظام أعمالي - Aamali ERP",
+  "description": "نظام ERP متكامل يعمل محلياً (Offline-first) لإدارة الموارد البشرية، علاقات العملاء، المبيعات، والمخزون.",
+  "requestFramePermissions": []
+}

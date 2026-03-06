@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" fill="#312e81" rx="40"/>
+  <path d="M50 150 L100 50 L150 150 Z" fill="#4f46e5" opacity="0.9"/>
+  <path d="M75 150 L100 100 L125 150 Z" fill="#818cf8"/>
+  <circle cx="100" cy="150" r="15" fill="#c7d2fe"/>
+  <text x="100" y="185" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle">أعمالي</text>
+</svg>
