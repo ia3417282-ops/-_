@@ -1,7 +1,10 @@
 {
-  "name": "react-example",
-  "private": true,
-  "version": "0.0.0",
+  "name": "aamali-erp",
+  "private": false,
+  "version": "1.0.0",
+  "description": "نظام أعمالي الذكي - نظام متكامل لإدارة الموارد والمخزون والفواتير - تطوير إبراهيم علي",
+  "author": "Ibrahim Ali",
+  "license": "GPL-3.0",
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
